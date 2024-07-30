@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  db:
+    image: mariadb
+    container_name: challenge3-db
+    env_file:
+      - .env
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./docker/db/init:/docker-entrypoint-initdb.d
+    ports:
+      - "3306:3306"
+
+  node-service:
+    build:
+      context: ./docker/api
+      dockerfile: Dockerfile
+    container_name: challenge3-node-service
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: challenge3-nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - node-service
