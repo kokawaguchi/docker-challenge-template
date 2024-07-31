@@ -3,7 +3,6 @@ version: "3.8"
 services:
   db:
     image: mariadb
-    container_name: challenge3-db
     env_file:
       - .env
     environment:
@@ -20,7 +19,6 @@ services:
     build:
       context: ./docker/api
       dockerfile: Dockerfile
-    container_name: challenge3-node-service
     env_file:
       - .env
     environment:
@@ -31,13 +29,14 @@ services:
     depends_on:
       - db
     ports:
-      - "3000:3000"
+      - "3000"
+    deploy:
+      replicas: 3
 
   nginx:
     build:
       context: ./docker/nginx
       dockerfile: Dockerfile
-    container_name: challenge3-nginx
     ports:
       - "8080:80"
     depends_on:
